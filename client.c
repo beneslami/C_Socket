@@ -14,11 +14,10 @@ int SocketCreate(void){
 
 int SocketConnect(int socket,char* ip,int portNum){
     struct sockaddr_in serv_addr;
-
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(portNum);
     serv_addr.sin_addr.s_addr = inet_addr(ip);
-    return connect(socket, (const sockaddr *)&serv_addr, sizeof(struct sockaddr_in));
+    return connect(socket, (struct sockaddr*) &serv_addr, sizeof(struct sockaddr_in));
 }
 
 int SocketSend(int socket,char* request, int requestLengh){
@@ -60,25 +59,28 @@ int main(int argc, char* argv[]) {
     int socketfd, portNum;
     char bufferRead[512];
     char bufferWrite[512];
+    char* ip = argv[1];
+    char* port = argv[2];
+
     if(argc < 3){
-        fprintf(stderr,"invlaid inputs");
+        perror("invlaid inputs");
         exit(0);
     }
     socketfd = SocketCreate();
     if(socketfd == -1){
-        printf("socket is not created...\n");
+        printf("Client-socket() is not created...\n");
         return 1;
     }
-    printf("socket is created\n");
-    if(SocketConnect(socketfd,argv[2],atoi(argv[3])) < 0){
+    printf("Client-socket() sockfd is OK...\n");
+    if(SocketConnect(socketfd, ip, atoi(port)) < 0){
         perror("connect failed.\n");
         return 1;
     }
-    printf("Successfully connected with server\n");
+    printf("Client-socket() is successfully connected with server\n");
     sleep(1);
-    SendingFile(argv[1],socketfd,bufferWrite);
+    SendingFile(ip, socketfd,bufferWrite);
     bzero(bufferRead, sizeof(bufferRead));
-    int readSize = SocketReceive(socketfd, bufferRead , 200);
+    int readSize = SocketReceive(socketfd, bufferRead, 200);
 
     close(socketfd);
     return 0;
