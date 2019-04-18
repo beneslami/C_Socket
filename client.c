@@ -17,7 +17,8 @@ int SocketConnect(int socket,char* ip,int portNum){
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(portNum);
     serv_addr.sin_addr.s_addr = inet_addr(ip);
-    return connect(socket, (struct sockaddr*) &serv_addr, sizeof(struct sockaddr_in));
+    memset(&(serv_addr.sin_zero), 0, 8);
+    return connect(socket, (struct sockaddr*) &serv_addr, sizeof(struct sockaddr));
 }
 
 int SocketSend(int socket,char* request, int requestLengh){
