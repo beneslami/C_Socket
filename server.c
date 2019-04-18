@@ -21,15 +21,13 @@ int BindCreateSocket(int socket, int portNum){
 }
 
 void serv_it(int socket,char *buffer){
-    FILE *fd = fopen("output.txt","w+");
-    while (1){
-        bzero(buffer,1500);
-        recv(socket,buffer,1500,0);
-        if(strcmp(buffer,"quit") == 0) break;
-        fwrite(buffer,1,1500,fd);
-        printf("%s",buffer);
+    bzero(buffer,1500);
+    if(recv(socket, buffer, 1500, 0) < 0){
+    perror("cannot receive from client");
+    exit(1);
     }
-    fclose(fd);
+    //if(strcmp(buffer,"quit") == 0) break;
+    printf("%s", buffer);
 }
 
 int main(int argc, char **argv){
@@ -76,8 +74,11 @@ int main(int argc, char **argv){
         }
         printf("connection established\n");
 
-        serv_it(newsocketfd,bufferRead);
-        send(newsocketfd,"done",strlen("done"),0);
+        serv_it(newsocketfd, bufferRead);
+        if (send(newsocketfd, "done", strlen("done"), 0) < 0){
+          perror("cannot send to the destination");
+          exit(1);
+        }
         close(newsocketfd);
     }
     close(socketfd);

@@ -12,7 +12,7 @@ int SocketCreate(void){
     return hSocket;
 }
 
-int SocketConnect(int socket,char* ip,int portNum){
+int SocketConnect(int socket, char* ip, int portNum){
     struct sockaddr_in serv_addr;
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(portNum);
@@ -25,11 +25,11 @@ int SocketSend(int socket,char* request, int requestLengh){
     struct timeval tv;
     tv.tv_sec = 20;
     tv.tv_usec = 0;
-    if(setsockopt(socket,SOL_SOCKET,SO_SNDTIMEO, (char *)&tv, sizeof(tv))){
+    if(setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&tv, sizeof(tv))){
         printf("timeOut...\n");
         return -1;
     }
-    return send(socket,request,requestLengh,0);
+    return send(socket, request, requestLengh,0);
 }
 
 int SocketReceive(int socket,char *response, int receiveSize){
@@ -40,23 +40,26 @@ int SocketReceive(int socket,char *response, int receiveSize){
         printf("timeOut...\n");
         return -1;
     }
-    int returnValue = recv(socket,response,receiveSize,0);
-    printf("Server:%s\n",response);
+    int returnValue = recv(socket, response, receiveSize, 0);
+    if(returnValue < 0){
+        perror("cannot receive from server");
+        exit(1);
+    }
+    printf("Server:%s\n", response);
     return returnValue;
 }
 
-void SendingFile(char *arg,int socketfd,char *bufferWrite){
-    FILE *fd = fopen(arg,"rb");
-    while (!feof(fd)){
-        bzero(bufferWrite,1500);
-        fread(bufferWrite, sizeof(char),1500,fd);
-        write(socketfd,bufferWrite,1500);
+void SendingFile(int socketfd, char *bufferWrite){
+
+    bufferWrite="this is test";
+    printf("%s\n", bufferWrite);
+    if(send(socketfd, bufferWrite, strlen(bufferWrite), 0) < 0){
+        perror("no data sent");
+        exit(1);
     }
-    write(socketfd,"quit",1500);
-    fclose(fd);
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char** argv) {
     int socketfd, portNum;
     char bufferRead[512];
     char bufferWrite[512];
@@ -79,9 +82,10 @@ int main(int argc, char* argv[]) {
     }
     printf("Client-socket() is successfully connected with server\n");
     sleep(1);
-    SendingFile(ip, socketfd,bufferWrite);
+    bzero(bufferWrite, sizeof(bufferWrite));
+    SendingFile(socketfd, bufferWrite);
     bzero(bufferRead, sizeof(bufferRead));
-    int readSize = SocketReceive(socketfd, bufferRead, 200);
+    int readSize = SocketReceive(socketfd, bufferRead,8);
 
     close(socketfd);
     return 0;
