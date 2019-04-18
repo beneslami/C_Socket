@@ -11,12 +11,12 @@ int SocketCreate(void){
     return hSocket;
 }
 
-int BindCreateSocket(int socket){
-    int portNum = 3128;
+int BindCreateSocket(int socket, int portNum){
+
     struct sockaddr_in serv_addr, cli_addr;  //structure containing internet address which is defined in netinet/in.h
     bzero((char *) &serv_addr, sizeof(serv_addr));
     serv_addr.sin_port = htons(portNum);
-    serv_addr.sin_addr.s_addr = INADDR_ANY;
+    serv_addr.sin_addr.s_addr = INADDR_ANY; // listen to any address
     return bind(socket, (struct sockaddr*) &serv_addr, sizeof(serv_addr));
 }
 
@@ -32,29 +32,30 @@ void serv_it(int socket,char *buffer){
     fclose(fd);
 }
 
-int main(int argc, char *argv[]){
+int main(int argc, char **argv){
     int socketfd; //store the value returned by socket sysCall
     int clientLength; // stores the size of the address of the client
     int newsocketfd;
     char bufferRead[256]; //server reads characters from the socket connections into this buffer
     struct sockaddr_in server, client;
+    char* port = argv[1];
 
     if (argc < 2) {
-        fprintf(stderr,"ERROR, port is not initialized");
+        perror("ERROR, port is not initialized");
         exit(1);
     }
 
     // socket creation
     socketfd = SocketCreate();
     if(socketfd == -1){
-        printf("socket is not created...");
+        perror("Server-socket() error!");
         return 1;
     }
-    printf("socket created\n");
+    printf("Server-socket() created\n");
 
     //binding process
-    if(BindCreateSocket(socketfd) < 0){
-        perror("bind failed");
+    if(BindCreateSocket(socketfd, port) < 0){
+        perror("Server-socket-bind() failed");
         return 1;
     }
     printf("bind done\n");
