@@ -54,14 +54,17 @@ int main(int argc, char **argv){
     printf("Server-socket() created\n");
 
     //binding process
-    if(BindCreateSocket(socketfd, port) < 0){
+    if(BindCreateSocket(socketfd, atoi(port)) < 0){
         perror("Server-socket-bind() failed");
         return 1;
     }
     printf("bind done\n");
 
     //listen
-    listen(socketfd,5);
+    if(listen(socketfd,5) == -1){
+      perror("Server-socket-listen() failed");
+      exit(1);
+    }
 
     while(1){
         printf("Waiting for incoming connections...\n");
