@@ -1,3 +1,5 @@
+Client Side
+---------------------------------------------
 The typical TCP client's communication involves four basic steps:
 1- Create a TCP socket using socket().
 2- Establish a connection to the server using connect().
@@ -13,6 +15,8 @@ The function inet_pton() converts the string representation of the server's inte
 The connect() function establishes a connection between the given socket and the one identified by the address and port in the sockaddr_in structure. Because the sockets API is generic, the pointer to the sockaddr_in address structure needs to be cast to the generic type sockaddr, and the actual size of the address data structure must be supplied.
 
 send() returns the number of bytes sent if successful and -1 otherwise.
+
+Server Side
 -------------------------------------------------------------------------------
 There are four general steps for basic TCP server communication:
 1- Create a TCP socket using socket().
